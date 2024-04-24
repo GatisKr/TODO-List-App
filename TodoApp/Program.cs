@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
+using TodoApp.StorageService;
 namespace TodoApp
 {
     public class Program
@@ -7,10 +8,15 @@ namespace TodoApp
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<TodoAppContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("TodoAppContext") ?? throw new InvalidOperationException("Connection string 'TodoAppContext' not found.")));
+            builder.Services
+                .AddDbContext<TodoAppContext>(options => options
+                .UseSqlServer(builder.Configuration
+                .GetConnectionString("TodoAppContext") ?? throw new InvalidOperationException("Connection string 'TodoAppContext' not found.")));
+            builder.Services
+                .AddControllersWithViews();
+            builder.Services
+                .AddScoped(typeof(IEntityService<>), typeof(EntityService<>));
 
-            builder.Services.AddControllersWithViews();
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
@@ -21,11 +27,8 @@ namespace TodoApp
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
