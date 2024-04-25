@@ -93,7 +93,7 @@ namespace TodoApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await TodoItemExists(todoItem.Id))
+                    if (!await _todoItemService.ExistsAsync(id))
                     {
                         return NotFound();
                     }
@@ -138,11 +138,6 @@ namespace TodoApp.Controllers
             }
 
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<bool> TodoItemExists(int id)
-        {
-            return await _todoItemService.ExistsAsync(id);
         }
     }
 }
